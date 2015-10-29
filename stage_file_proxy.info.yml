@@ -4,3 +4,4 @@ description: 'Proxies files from production server so you do not have to transfe
 package: Development
 version: VERSION
 core: 8.x
+configure: stage_file_proxy.admin_form
