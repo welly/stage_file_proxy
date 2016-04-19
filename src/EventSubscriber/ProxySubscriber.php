@@ -96,7 +96,7 @@ class ProxySubscriber implements EventSubscriberInterface {
         $location = Url::fromUri("$server/$remote_file_dir/$relative_path", array(
           'query' => $query_parameters,
           'absolute' => TRUE,
-        ));
+        ))->toString();
 
       }
       elseif ($this->manager->fetch($server, $remote_file_dir, $relative_path)) {
