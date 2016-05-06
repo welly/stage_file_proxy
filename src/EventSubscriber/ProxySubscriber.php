@@ -73,6 +73,7 @@ class ProxySubscriber implements EventSubscriberInterface {
       $remote_file_dir = $file_dir;
     }
 
+    $uri = rawurldecode($uri);
     $relative_path = Unicode::substr($uri, Unicode::strlen($file_dir) + 1);
 
     // Get the origin server.
