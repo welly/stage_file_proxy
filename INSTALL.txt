@@ -49,15 +49,6 @@ files. This is useful for multisite installations where the sites directory
 contains different names for each url. If this is not set, it defaults to the
 same path as the local site (sites/default/files).
 
-$conf['stage_file_proxy_sslversion'] = 3;
-
-Default is 3.
-
-CURL will try to figure out which ssl version to use, but if it fails to do that
-properly it can lead to getting an empty file and a 0 status code. The default
-is 3 which seems relatively common, but if you get 0 byte files you can try
-changing it to 2.
-
 DRUSH USERS
 ===========
 

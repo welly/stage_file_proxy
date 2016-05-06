@@ -74,16 +74,6 @@ class SettingsForm extends ConfigFormBase {
       '#required' => FALSE,
     );
 
-    $form['sslversion'] = array(
-      '#type' => 'textfield',
-      '#title' => t('SSL Version.'),
-      '#default_value' => $config->get('sslversion'),
-      '#description' => t('CURL will try to figure out which ssl version to use, but if it fails to do thatp roperly it can lead to getting an empty file and a 0 status code. The default is 3 which seems relatively common, but if you get 0 byte files you can try changing it to 2.'),
-      '#size' => 2,
-      '#maxlength' => 2,
-      '#required' => FALSE,
-    );
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -93,7 +83,6 @@ class SettingsForm extends ConfigFormBase {
   function validateForm(array &$form, FormStateInterface $form_state) {
 
     $origin = $form_state->getValue('origin');
-    $sslversion = $form_state->getValue('sslversion');
 
     if (!empty($origin) && filter_var($origin, FILTER_VALIDATE_URL) === FALSE) {
       $form_state->setErrorByName('origin', 'Origin needs to be a valid URL.');
@@ -103,9 +92,6 @@ class SettingsForm extends ConfigFormBase {
       $form_state->setErrorByName('origin', 'Origin URL cannot end in slash.');
     }
 
-    if (!is_numeric($sslversion)) {
-      $form_state->setErrorByName('sslversion', 'You must enter a number for the SSL version.');
-    }
   }
 
   /**
@@ -119,7 +105,6 @@ class SettingsForm extends ConfigFormBase {
       'origin_dir',
       'use_imagecache_root',
       'hotlink',
-      'sslversion',
     );
     foreach ($keys as $key) {
       $config->set($key, $form_state->getValue($key));
