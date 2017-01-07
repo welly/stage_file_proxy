@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\stage_file_proxy\EventSubscriber\ProxySubscriber.
- */
-
 namespace Drupal\stage_file_proxy\EventSubscriber;
 
 use Drupal\Component\Utility\Unicode;
