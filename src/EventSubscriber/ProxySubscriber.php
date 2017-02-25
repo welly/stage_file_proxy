@@ -105,42 +105,40 @@ class ProxySubscriber implements EventSubscriberInterface {
     $uri = rawurldecode($uri);
     $relative_path = Unicode::substr($uri, Unicode::strlen($file_dir) + 1);
 
-    if ($server) {
-      // Is this imagecache? Request the root file and let imagecache resize.
-      if (\Drupal::config('stage_file_proxy.settings')->get('origin') && $original_path = $this->manager->styleOriginalPath($relative_path, TRUE)) {
-        $relative_path = file_uri_target($original_path);
-        if (file_exists($original_path)) {
-          // Imagecache can generate it without our help.
-          return;
-        }
+    // Is this imagecache? Request the root file and let imagecache resize.
+    if (\Drupal::config('stage_file_proxy.settings')->get('origin') && $original_path = $this->manager->styleOriginalPath($relative_path, TRUE)) {
+      $relative_path = file_uri_target($original_path);
+      if (file_exists($original_path)) {
+        // Imagecache can generate it without our help.
+        return;
       }
-
-      $query = \Drupal::request()->query->all();
-      $query_parameters = UrlHelper::filterQueryParameters($query);
-
-      if (\Drupal::config('stage_file_proxy.settings')->get('hotlink')) {
-
-        $location = Url::fromUri("$server/$remote_file_dir/$relative_path", array(
-          'query' => $query_parameters,
-          'absolute' => TRUE,
-        ))->toString();
-
-      }
-      elseif ($this->manager->fetch($server, $remote_file_dir, $relative_path)) {
-        // Refresh this request & let the web server work out mime type, etc.
-        $location = Url::fromUri('base://' . $uri, array(
-          'query' => $query_parameters,
-          'absolute' => TRUE,
-        ))->toString();
-      }
-      else {
-        $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', array('@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)));
-        throw new NotFoundHttpException();
-      }
-
-      header("Location: $location");
-      exit;
     }
+
+    $query = \Drupal::request()->query->all();
+    $query_parameters = UrlHelper::filterQueryParameters($query);
+
+    if (\Drupal::config('stage_file_proxy.settings')->get('hotlink')) {
+
+      $location = Url::fromUri("$server/$remote_file_dir/$relative_path", array(
+        'query' => $query_parameters,
+        'absolute' => TRUE,
+      ))->toString();
+
+    }
+    elseif ($this->manager->fetch($server, $remote_file_dir, $relative_path)) {
+      // Refresh this request & let the web server work out mime type, etc.
+      $location = Url::fromUri('base://' . $uri, array(
+        'query' => $query_parameters,
+        'absolute' => TRUE,
+      ))->toString();
+    }
+    else {
+      $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', array('@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)));
+      throw new NotFoundHttpException();
+    }
+
+    header("Location: $location");
+    exit;
   }
 
   /**
