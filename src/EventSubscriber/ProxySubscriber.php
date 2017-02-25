@@ -63,6 +63,19 @@ class ProxySubscriber implements EventSubscriberInterface {
    *   The Event to process.
    */
   public function checkFileOrigin(GetResponseEvent $event) {
+    // Get the origin server.
+    $server = \Drupal::config('stage_file_proxy.settings')->get('origin');
+
+    // Quit if no origin given.
+    if (!$server) {
+      return;
+    }
+
+    // Quit if we are the origin, ignore http(s).
+    if (preg_replace('#^[a-z]*://#u', '', $server) === $event->getRequest()->getHost()) {
+      return;
+    }
+
     $file_dir = $this->manager->filePublicPath();
     $uri = $event->getRequest()->getPathInfo();
 
@@ -91,9 +104,6 @@ class ProxySubscriber implements EventSubscriberInterface {
 
     $uri = rawurldecode($uri);
     $relative_path = Unicode::substr($uri, Unicode::strlen($file_dir) + 1);
-
-    // Get the origin server.
-    $server = \Drupal::config('stage_file_proxy.settings')->get('origin');
 
     if ($server) {
       // Is this imagecache? Request the root file and let imagecache resize.
