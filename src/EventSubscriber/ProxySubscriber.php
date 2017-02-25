@@ -86,8 +86,8 @@ class ProxySubscriber implements EventSubscriberInterface {
     }
 
     $alter_excluded_paths_event = new AlterExcludedPathsEvent(array());
-    $event = $this->eventDispatcher->dispatch('stage_file_proxy.alter_excluded_paths', $alter_excluded_paths_event);
-    $excluded_paths = $event->getExcludedPaths();
+    $this->eventDispatcher->dispatch('stage_file_proxy.alter_excluded_paths', $alter_excluded_paths_event);
+    $excluded_paths = $alter_excluded_paths_event->getExcludedPaths();
     foreach ($excluded_paths as $excluded_path) {
       if (strpos($uri, $excluded_path) !== FALSE) {
         return;
