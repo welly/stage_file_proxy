@@ -5,10 +5,15 @@ namespace Drupal\stage_file_proxy;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PublicStream;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
 
 class FetchManager implements FetchManagerInterface {
+  /** @var Client */
+  protected $client;
+  /** @var FileSystemInterface */
+  protected $fileSystem;
 
   public function __construct(ClientInterface $client, FileSystemInterface $file_system) {
     $this->client = $client;
