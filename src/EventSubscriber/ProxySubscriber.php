@@ -62,8 +62,9 @@ class ProxySubscriber implements EventSubscriberInterface {
    *   The Event to process.
    */
   public function checkFileOrigin(GetResponseEvent $event) {
+    $config = \Drupal::config('stage_file_proxy.settings');
     // Get the origin server.
-    $server = \Drupal::config('stage_file_proxy.settings')->get('origin');
+    $server = $config->get('origin');
 
     // Quit if no origin given.
     if (!$server) {
@@ -96,7 +97,7 @@ class ProxySubscriber implements EventSubscriberInterface {
     // Note if the origin server files location is different. This
     // must be the exact path for the remote site's public file
     // system path, and defaults to the local public file system path.
-    $remote_file_dir = trim(\Drupal::config('stage_file_proxy.settings')->get('origin_dir'));
+    $remote_file_dir = trim($config->get('origin_dir'));
     if (!$remote_file_dir) {
       $remote_file_dir = $file_dir;
     }
@@ -117,7 +118,7 @@ class ProxySubscriber implements EventSubscriberInterface {
     $query = \Drupal::request()->query->all();
     $query_parameters = UrlHelper::filterQueryParameters($query);
 
-    if (\Drupal::config('stage_file_proxy.settings')->get('hotlink')) {
+    if ($config->get('hotlink')) {
 
       $location = Url::fromUri("$server/$remote_file_dir/$relative_path", array(
         'query' => $query_parameters,
