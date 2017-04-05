@@ -103,16 +103,23 @@ class ProxySubscriber implements EventSubscriberInterface {
     }
 
     $request_path = rawurldecode($request_path);
+    // Path relative to file directory. Used for hotlinking.
     $relative_path = Unicode::substr($request_path, Unicode::strlen($file_dir) + 1);
+    // If file is fetched and use_imagecache_root is set, original is used.
+    $fetch_path = $relative_path;
 
     // Is this imagecache? Request the root file and let imagecache resize.
     // We check this first so locally added files have precedence.
-    if (
-      ($original_path = $this->manager->styleOriginalPath($relative_path, TRUE))
-      && file_exists($original_path)
-    ) {
-      // Imagecache can generate it without our help.
-      return;
+    $original_path = $this->manager->styleOriginalPath($relative_path, TRUE);
+    if ($original_path) {
+      if (file_exists($original_path)) {
+        // Imagecache can generate it without our help.
+        return;
+      }
+      if ($config->get('use_imagecache_root')) {
+        // Config says: Fetch the original.
+        $fetch_path = file_uri_target($original_path);
+      }
     }
 
     $query = \Drupal::request()->query->all();
@@ -126,7 +133,7 @@ class ProxySubscriber implements EventSubscriberInterface {
       ))->toString();
 
     }
-    elseif ($this->manager->fetch($server, $remote_file_dir, $relative_path)) {
+    elseif ($this->manager->fetch($server, $remote_file_dir, $fetch_path)) {
       // Refresh this request & let the web server work out mime type, etc.
       $location = Url::fromUri('base://' . $request_path, array(
         'query' => $query_parameters,
