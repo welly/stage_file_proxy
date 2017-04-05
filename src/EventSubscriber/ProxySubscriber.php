@@ -132,6 +132,8 @@ class ProxySubscriber implements EventSubscriberInterface {
         'query' => $query_parameters,
         'absolute' => TRUE,
       ))->toString();
+      // Avoid redirection caching in upstream proxies.
+      header("Cache-Control: must-revalidate, no-cache, post-check=0, pre-check=0, private");
     }
     else {
       $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', array('@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)));
