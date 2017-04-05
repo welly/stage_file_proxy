@@ -77,11 +77,11 @@ class ProxySubscriber implements EventSubscriberInterface {
     }
 
     $file_dir = $this->manager->filePublicPath();
-    $uri = $event->getRequest()->getPathInfo();
+    $request_path = $event->getRequest()->getPathInfo();
 
-    $uri = Unicode::substr($uri, 1);
+    $request_path = Unicode::substr($request_path, 1);
 
-    if (strpos($uri, '' . $file_dir) !== 0) {
+    if (strpos($request_path, '' . $file_dir) !== 0) {
       return;
     }
 
@@ -89,7 +89,7 @@ class ProxySubscriber implements EventSubscriberInterface {
     $this->eventDispatcher->dispatch('stage_file_proxy.alter_excluded_paths', $alter_excluded_paths_event);
     $excluded_paths = $alter_excluded_paths_event->getExcludedPaths();
     foreach ($excluded_paths as $excluded_path) {
-      if (strpos($uri, $excluded_path) !== FALSE) {
+      if (strpos($request_path, $excluded_path) !== FALSE) {
         return;
       }
     }
@@ -102,8 +102,8 @@ class ProxySubscriber implements EventSubscriberInterface {
       $remote_file_dir = $file_dir;
     }
 
-    $uri = rawurldecode($uri);
-    $relative_path = Unicode::substr($uri, Unicode::strlen($file_dir) + 1);
+    $request_path = rawurldecode($request_path);
+    $relative_path = Unicode::substr($request_path, Unicode::strlen($file_dir) + 1);
 
     // Is this imagecache? Request the root file and let imagecache resize.
     // We check this first so locally added files have precedence.
@@ -128,7 +128,7 @@ class ProxySubscriber implements EventSubscriberInterface {
     }
     elseif ($this->manager->fetch($server, $remote_file_dir, $relative_path)) {
       // Refresh this request & let the web server work out mime type, etc.
-      $location = Url::fromUri('base://' . $uri, array(
+      $location = Url::fromUri('base://' . $request_path, array(
         'query' => $query_parameters,
         'absolute' => TRUE,
       ))->toString();
