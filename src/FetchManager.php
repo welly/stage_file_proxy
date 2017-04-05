@@ -29,9 +29,10 @@ class FetchManager implements FetchManagerInterface {
       $url = $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path);
       $response = $this->client->get($url, ['Connection' => 'close']);
 
-      if ($response->getStatusCode() != 200) {
+      $result = $response->getStatusCode();
+      if ($result != 200) {
         \Drupal::logger('stage_file_proxy')->error('HTTP error @errorcode occurred when trying to fetch @remote.', [
-          '@errorcode' => $result->code,
+          '@errorcode' => $result,
           '@remote' => $url,
         ]);
         return FALSE;
