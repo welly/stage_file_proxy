@@ -107,7 +107,6 @@ class ProxySubscriber implements EventSubscriberInterface {
 
     // Is this imagecache? Request the root file and let imagecache resize.
     if (\Drupal::config('stage_file_proxy.settings')->get('origin') && $original_path = $this->manager->styleOriginalPath($relative_path, TRUE)) {
-      $relative_path = file_uri_target($original_path);
       if (file_exists($original_path)) {
         // Imagecache can generate it without our help.
         return;
