@@ -6,6 +6,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\StreamWrapper\PublicStream;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
 
 class FetchManager implements FetchManagerInterface {
 
@@ -18,44 +19,48 @@ class FetchManager implements FetchManagerInterface {
    * {@inheritdoc}
    */
   public function fetch($server, $remote_file_dir, $relative_path) {
-    // Fetch remote file.
-    $url = $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path);
-    $response = $this->client->get($url, ['Connection' => 'close']);
+    try {
+      // Fetch remote file.
+      $url = $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path);
+      $response = $this->client->get($url, ['Connection' => 'close']);
 
-    if ($response->getStatusCode() != 200) {
-      \Drupal::logger('stage_file_proxy')->error('HTTP error @errorcode occurred when trying to fetch @remote.', [
-        '@errorcode' => $result->code,
-        '@remote' => $url,
-      ]);
+      if ($response->getStatusCode() != 200) {
+        \Drupal::logger('stage_file_proxy')->error('HTTP error @errorcode occurred when trying to fetch @remote.', [
+          '@errorcode' => $result->code,
+          '@remote' => $url,
+        ]);
+        return FALSE;
+      }
+
+      // Prepare local target directory and save downloaded file.
+      $file_dir = $this->filePublicPath();
+      $destination = $file_dir . '/' . dirname($relative_path);
+      if (!file_prepare_directory($destination, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+        \Drupal::logger('stage_file_proxy')->error('Unable to prepare local directory @path.', ['@path' => $destination]);
+        return FALSE;
+      }
+
+      $destination = str_replace('///', '//', "$destination/") . drupal_basename($relative_path);
+
+      $response_headers = $response->getHeaders();
+      $content_length = array_shift($response_headers['Content-Length']);
+      $response_data = $response->getBody()->getContents();
+      if (isset($content_length) && strlen($response_data) != $content_length) {
+        \Drupal::logger('stage_file_proxy')->error('Incomplete download. Was expecting @content-length bytes, actually got @data-length.', [
+          '@content-length' => $content_length,
+          '@data-length' => $content_length,
+        ]);
+        return FALSE;
+      }
+
+      if ($this->writeFile($destination, $response_data)) {
+        return TRUE;
+      }
+      \Drupal::logger('stage_file_proxy')->error('@remote could not be saved to @path.', ['@remote' => $url, '@path' => $destination]);
       return FALSE;
+    } catch (ClientException $e) {
+      // Do nothing.
     }
-
-    // Prepare local target directory and save downloaded file.
-    $file_dir = $this->filePublicPath();
-    $destination = $file_dir . '/' . dirname($relative_path);
-    if (!file_prepare_directory($destination, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-      \Drupal::logger('stage_file_proxy')->error('Unable to prepare local directory @path.', ['@path' => $destination]);
-      return FALSE;
-    }
-
-    $destination = str_replace('///', '//', "$destination/") . drupal_basename($relative_path);
-
-    $response_headers = $response->getHeaders();
-    $content_length = array_shift($response_headers['Content-Length']);
-    $response_data = $response->getBody()->getContents();
-    if (isset($content_length) && strlen($response_data) != $content_length) {
-      \Drupal::logger('stage_file_proxy')->error('Incomplete download. Was expecting @content-length bytes, actually got @data-length.', [
-        '@content-length' => $content_length,
-        '@data-length' => $content_length,
-      ]);
-      return FALSE;
-    }
-
-    if ($this->writeFile($destination, $response_data)) {
-      return TRUE;
-    }
-    \Drupal::logger('stage_file_proxy')->error('@remote could not be saved to @path.', ['@remote' => $url, '@path' => $destination]);
-    return FALSE;
   }
 
   /**

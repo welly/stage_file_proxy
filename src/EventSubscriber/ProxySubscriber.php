@@ -11,7 +11,6 @@ use Drupal\stage_file_proxy\EventDispatcher\AlterExcludedPathsEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Drupal\stage_file_proxy\FetchManagerInterface;
 
 /**
@@ -137,11 +136,12 @@ class ProxySubscriber implements EventSubscriberInterface {
     }
     else {
       $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', array('@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)));
-      throw new NotFoundHttpException();
     }
 
-    header("Location: $location");
-    exit;
+    if (isset($location)) {
+      header("Location: $location");
+      exit;
+    }
   }
 
   /**
