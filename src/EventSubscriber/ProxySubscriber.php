@@ -6,8 +6,8 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Psr\Log\LoggerInterface;
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\stage_file_proxy\EventDispatcher\AlterExcludedPathsEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -35,7 +35,7 @@ class ProxySubscriber implements EventSubscriberInterface {
   /**
    * The event dispatcher.
    *
-   * @var ContainerAwareEventDispatcher
+   * @var EventDispatcherInterface
    */
   protected $eventDispatcher;
 
@@ -46,10 +46,10 @@ class ProxySubscriber implements EventSubscriberInterface {
    *   The manager used to fetch the file against.
    *
    * @param \Psr\Log\LoggerInterface $logger
-   * @param ContainerAwareEventDispatcher $event_dispatcher
+   * @param EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
    */
-  public function __construct(FetchManagerInterface $manager, LoggerInterface $logger, ContainerAwareEventDispatcher $event_dispatcher) {
+  public function __construct(FetchManagerInterface $manager, LoggerInterface $logger, EventDispatcherInterface $event_dispatcher) {
     $this->manager = $manager;
     $this->logger = $logger;
     $this->eventDispatcher = $event_dispatcher;
