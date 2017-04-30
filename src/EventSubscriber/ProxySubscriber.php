@@ -28,14 +28,14 @@ class ProxySubscriber implements EventSubscriberInterface {
   /**
    * The logger.
    *
-   * @var LoggerInterface
+   * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
   /**
    * The event dispatcher.
    *
-   * @var EventDispatcherInterface
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
   protected $eventDispatcher;
 
@@ -44,9 +44,9 @@ class ProxySubscriber implements EventSubscriberInterface {
    *
    * @param \Drupal\stage_file_proxy\FetchManagerInterface $manager
    *   The manager used to fetch the file against.
-   *
    * @param \Psr\Log\LoggerInterface $logger
-   * @param EventDispatcherInterface $event_dispatcher
+   *   The logger interface.
+   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
    */
   public function __construct(FetchManagerInterface $manager, LoggerInterface $logger, EventDispatcherInterface $event_dispatcher) {
@@ -85,7 +85,7 @@ class ProxySubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $alter_excluded_paths_event = new AlterExcludedPathsEvent(array());
+    $alter_excluded_paths_event = new AlterExcludedPathsEvent([]);
     $this->eventDispatcher->dispatch('stage_file_proxy.alter_excluded_paths', $alter_excluded_paths_event);
     $excluded_paths = $alter_excluded_paths_event->getExcludedPaths();
     foreach ($excluded_paths as $excluded_path) {
@@ -130,23 +130,23 @@ class ProxySubscriber implements EventSubscriberInterface {
 
     if ($config->get('hotlink')) {
 
-      $location = Url::fromUri("$server/$remote_file_dir/$relative_path", array(
+      $location = Url::fromUri("$server/$remote_file_dir/$relative_path", [
         'query' => $query_parameters,
         'absolute' => TRUE,
-      ))->toString();
+      ])->toString();
 
     }
     elseif ($this->manager->fetch($server, $remote_file_dir, $fetch_path, $options)) {
       // Refresh this request & let the web server work out mime type, etc.
-      $location = Url::fromUri('base://' . $request_path, array(
+      $location = Url::fromUri('base://' . $request_path, [
         'query' => $query_parameters,
         'absolute' => TRUE,
-      ))->toString();
+      ])->toString();
       // Avoid redirection caching in upstream proxies.
       header("Cache-Control: must-revalidate, no-cache, post-check=0, pre-check=0, private");
     }
     else {
-      $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', array('@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)));
+      $this->logger->error('Stage File Proxy encountered an unknown error by retrieving file @file', ['@file' => $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path)]);
     }
 
     if (isset($location)) {
@@ -161,9 +161,9 @@ class ProxySubscriber implements EventSubscriberInterface {
    * @return array
    *   An array of event listener definitions.
    */
-  static function getSubscribedEvents() {
+  public static function getSubscribedEvents() {
     // Priority 240 is after ban middleware but before page cache.
-    $events[KernelEvents::REQUEST][] = array('checkFileOrigin', 240);
+    $events[KernelEvents::REQUEST][] = ['checkFileOrigin', 240];
     return $events;
   }
 

@@ -3,11 +3,22 @@
 namespace Drupal\stage_file_proxy;
 
 use Drupal\Core\File\FileSystemInterface;
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 
+/**
+ * Interface for FetchManager.
+ */
 interface FetchManagerInterface {
 
-  public function __construct(ClientInterface $client, FileSystemInterface $file_system);
+  /**
+   * Constructs an FetchManager instance.
+   *
+   * @param \GuzzleHttp\Client $client
+   *   The HTTP client.
+   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   *   The file system.
+   */
+  public function __construct(Client $client, FileSystemInterface $file_system);
 
   /**
    * Downloads a remote file and saves it to the local files directory.
@@ -35,14 +46,16 @@ interface FetchManagerInterface {
    * Helper to retrieves original path for a styled image.
    *
    * @param string $uri
-   *   A uri or path (may be prefixed with scheme)
+   *   A uri or path (may be prefixed with scheme).
    * @param bool $style_only
    *   Indicates if, the function should only return paths retrieved from style
    *   paths. Defaults to TRUE.
    *
    * @return bool|mixed|string
    *   A file URI pointing to the given original image.
-   *   If $style_only is set to TRUE and $uri is no style-path, FALSE is returned.
+   *   If $style_only is set to TRUE and $uri is no style-path, FALSE is
+   *   returned.
    */
   public function styleOriginalPath($uri, $style_only = TRUE);
+
 }
