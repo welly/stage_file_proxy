@@ -23,11 +23,12 @@ class FetchManager implements FetchManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function fetch($server, $remote_file_dir, $relative_path) {
+  public function fetch($server, $remote_file_dir, $relative_path, array $options) {
     try {
       // Fetch remote file.
       $url = $server . '/' . UrlHelper::encodePath($remote_file_dir . '/' . $relative_path);
-      $response = $this->client->get($url, ['Connection' => 'close']);
+      $options['Connection'] = 'close';
+      $response = $this->client->get($url, $options);
 
       $result = $response->getStatusCode();
       if ($result != 200) {

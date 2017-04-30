@@ -18,11 +18,13 @@ interface FetchManagerInterface {
    *   The relative path to the files directory on the origin server.
    * @param string $relative_path
    *   The path to the requested resource relative to the files directory.
+   * @param array $options
+   *   Options for the request.
    *
    * @return bool
    *   Returns true if the content was downloaded, otherwise false.
    */
-  public function fetch($server, $remote_file_dir, $relative_path);
+  public function fetch($server, $remote_file_dir, $relative_path, array $options);
 
   /**
    * Helper to retrieve the file directory.

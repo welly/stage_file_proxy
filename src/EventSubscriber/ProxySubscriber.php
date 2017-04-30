@@ -124,6 +124,9 @@ class ProxySubscriber implements EventSubscriberInterface {
 
     $query = \Drupal::request()->query->all();
     $query_parameters = UrlHelper::filterQueryParameters($query);
+      $options = [
+        'verify' => \Drupal::config('stage_file_proxy.settings')->get('verify'),
+      ];
 
     if ($config->get('hotlink')) {
 
@@ -133,7 +136,7 @@ class ProxySubscriber implements EventSubscriberInterface {
       ))->toString();
 
     }
-    elseif ($this->manager->fetch($server, $remote_file_dir, $fetch_path)) {
+    elseif ($this->manager->fetch($server, $remote_file_dir, $fetch_path, $options)) {
       // Refresh this request & let the web server work out mime type, etc.
       $location = Url::fromUri('base://' . $request_path, array(
         'query' => $query_parameters,

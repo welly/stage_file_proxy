@@ -38,6 +38,14 @@ class SettingsForm extends ConfigFormBase {
       '#required' => FALSE,
     );
 
+    $form['verify'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Verify SSL.'),
+      '#default_value' => $config->get('verify'),
+      '#description' => t('If this is true (default) then the request will be done by doing the SSL verification if the origin is using https.'),
+      '#required' => FALSE,
+    );
+
     $stage_file_proxy_origin_dir = $config->get('origin_dir');
     if (!$stage_file_proxy_origin_dir) {
       $stage_file_proxy_origin_dir = $config->get('file_public_path');
@@ -100,6 +108,7 @@ class SettingsForm extends ConfigFormBase {
       'origin_dir',
       'use_imagecache_root',
       'hotlink',
+      'verify',
     );
     foreach ($keys as $key) {
       $config->set($key, $form_state->getValue($key));
