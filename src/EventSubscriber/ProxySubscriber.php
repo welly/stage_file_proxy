@@ -124,9 +124,9 @@ class ProxySubscriber implements EventSubscriberInterface {
 
     $query = \Drupal::request()->query->all();
     $query_parameters = UrlHelper::filterQueryParameters($query);
-      $options = [
-        'verify' => \Drupal::config('stage_file_proxy.settings')->get('verify'),
-      ];
+    $options = [
+      'verify' => \Drupal::config('stage_file_proxy.settings')->get('verify'),
+    ];
 
     if ($config->get('hotlink')) {
 

@@ -72,15 +72,15 @@ DRUSH USERS
 To automatically enable stage_file_proxy on your dev machine after sql-sync,
 add the following to your dev site alias file:
 
-  $aliases['dev'] = array (
+  $aliases['dev'] = [
     'root' => '/path/to/drupalroot',
     'uri' => 'http://example.org',
-    'target-command-specific' => array(
-      'sql-sync' => array(
-        'enable' => array('stage_file_proxy'),
-      ),
-    ),
-  );
+    'target-command-specific' => [
+      'sql-sync' => [
+        'enable' => ['stage_file_proxy'],
+      ],
+    ],
+  ];
 
 In order for this to work, you must copy the file
 drush/examples/sync_enable.drush.inc to your ~/.drush folder.
