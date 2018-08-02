@@ -117,6 +117,7 @@ class SettingsForm extends ConfigFormBase {
       $config->set($key, $form_state->getValue($key));
     }
     $config->save();
+    drupal_set_message($this->t('Your settings have been saved.'));
   }
 
 }
