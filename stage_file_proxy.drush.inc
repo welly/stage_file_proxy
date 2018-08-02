@@ -26,6 +26,9 @@ function stage_file_proxy_drush_command() {
  */
 function drush_stage_file_proxy_dl() {
   $server = Drupal::config('stage_file_proxy.settings')->get('origin');
+  $options = [
+    'verify' => \Drupal::config('stage_file_proxy.settings')->get('verify'),
+  ];
   if (empty($server)) {
     drupal_set_message(
       dt('Configure stage_file_proxy.settings.origin in your settings.php (see INSTALL.txt).'),
@@ -67,7 +70,7 @@ function drush_stage_file_proxy_dl() {
     }
 
     try {
-      if ($fetch_manager->fetch($server, $remote_file_dir, $relative_path)) {
+      if ($fetch_manager->fetch($server, $remote_file_dir, $relative_path, $options)) {
         $got_files_number++;
       }
       else {
