@@ -37,7 +37,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('The origin website.'),
       '#default_value' => $config->get('origin'),
-      '#description' => $this->t("The origin website. For example: 'http://example.com' with no trailing slash. If the site is using HTTP Basic Authentication (the browser popup for username and password) you can embed those in the url. Be sure to URL encode any special characters:<br/><br/>For example, setting a user name of 'myusername' and password as, 'letme&in' the configuration would be the following: <br/><br/>'http://myusername:letme%26in@example.com';"),
+      '#description' => $this->t("The origin website. For example: 'http://example.com'. If the site is using HTTP Basic Authentication (the browser popup for username and password) you can embed those in the url. Be sure to URL encode any special characters:<br/><br/>For example, setting a user name of 'myusername' and password as, 'letme&in' the configuration would be the following: <br/><br/>'http://myusername:letme%26in@example.com';"),
       '#required' => FALSE,
     ];
 
@@ -114,7 +114,11 @@ class SettingsForm extends ConfigFormBase {
       'verify',
     ];
     foreach ($keys as $key) {
-      $config->set($key, $form_state->getValue($key));
+      $value = $form_state->getValue($key);
+      if ($key === 'origin') {
+        $value = trim($value, '/ ');
+      }
+      $config->set($key, $value);
     }
     $config->save();
     drupal_set_message($this->t('Your settings have been saved.'));
